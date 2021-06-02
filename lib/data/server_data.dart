@@ -32,7 +32,7 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
   CatalogueFurnitureItem(
     'Диван Бетт',
     1,
-    'Диваны',
+    'Sofas',
     'assets/images/sofa-bett.png',
     37999,
     [
@@ -45,7 +45,7 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
   CatalogueFurnitureItem(
     'Диван Свен',
     2,
-    'Диваны',
+    'Sofas',
     'assets/images/sofa-sven.png',
     25999,
     [
@@ -58,7 +58,7 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
   CatalogueFurnitureItem(
     'Диван Рон',
     3,
-    'Диваны',
+    'Sofas',
     'assets/images/sofa-ron.png',
     19000,
     [
@@ -71,7 +71,7 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
   CatalogueFurnitureItem(
     'Диван Элиза',
     4,
-    'Диваны',
+    'Sofas',
     'assets/images/sofa-elisa.png',
     25999,
     [

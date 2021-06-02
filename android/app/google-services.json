@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "344989666927",
+    "firebase_url": "https://test-furniture-shop-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "test-furniture-shop",
+    "storage_bucket": "test-furniture-shop.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344989666927:android:76455d13fca6222094c79a",
+        "android_client_info": {
+          "package_name": "com.example.flutter_furniture_shop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "344989666927-o9p1khcqc3r6nilcqt5qqr84nfkkacoq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCcQ9ur0h3Koc5d8cPSFtrTS5Dd0fCtP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "344989666927-o9p1khcqc3r6nilcqt5qqr84nfkkacoq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

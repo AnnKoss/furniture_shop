@@ -15,13 +15,12 @@ class MyApp extends StatelessWidget {
       title: 'Furniture Shop',
       theme: ThemeData(
         primaryColor: const Color(0xff6376E9),
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xfff5f5f5),
         textTheme: TextTheme(
           headline1: TextStyle(
             color: const Color(0xff181B32),
             fontWeight: FontWeight.w600,
             fontSize: 20,
-            height: 1.6,
             letterSpacing: 0.75,
           ),
           bodyText1: TextStyle(

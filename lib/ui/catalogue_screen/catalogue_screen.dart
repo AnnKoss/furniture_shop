@@ -3,6 +3,7 @@
 import 'package:flutter_furniture_shop/data/server_data.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
 import '../common/styles.dart';
+import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
 
 class CatalogueScreen extends StatefulWidget {
   static const routeName = '/catalogue';
@@ -13,8 +14,29 @@ class CatalogueScreen extends StatefulWidget {
 
 class _CatalogueScreenState extends State<CatalogueScreen> {
   String categoriesDropdownValue = 'Диваны';
+
   @override
   Widget build(BuildContext context) {
+    // String string1 = 'abcd';
+    // String string2 = 'dCbaa';
+
+    // bool isAnogram(String one, String two) {
+    //   List<String> oneSplited = one.toLowerCase().split('');
+    //   List<String> twoSplited = two.toLowerCase().split('');
+    //   oneSplited.sort();
+    //   twoSplited.sort();
+    //   String oneFinal = oneSplited.join();
+    //   String twoFinal = twoSplited.join();
+    //   print('oneFinal: $oneFinal');
+    //   print('twoFinal: $twoFinal');
+    //   if (oneFinal == twoFinal)
+    //     return true;
+    //   else
+    //     return false;
+    // }
+
+    // print('isAnogram: ${isAnogram(string1, string2)}');
+
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
@@ -173,7 +195,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
           ),
         ),
       ),
-      // bottomNavigationBar: ,
+      bottomNavigationBar: CustomBottomNavigationBar(0),
     );
   }
 }
