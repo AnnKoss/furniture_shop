@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_furniture_shop/ui/cart_screen.dart';
+import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_screen.dart';
-import 'package:flutter_furniture_shop/ui/product_card_screen.dart';
+import 'package:flutter_furniture_shop/ui/product_detail_screen/product_detail_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
       home: CatalogueScreen(),
       routes: {
         CatalogueScreen.routeName: (ctx) => CatalogueScreen(),
-        ProductCardScreen.routeName: (ctx) => ProductCardScreen(),
+        ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
         CartScreen.routeName: (ctx) => CartScreen(),
       },
     );
