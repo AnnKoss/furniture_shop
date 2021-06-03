@@ -1,12 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
+import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 
 class GridViewCard extends StatefulWidget {
   final int id;
   final String title;
   final String imageUrl;
-  final List<String> colorOptions;
+  final List<ColorStringAndHex> colorOptions;
   final int price;
   GridViewCard(
     this.id,
@@ -52,8 +53,8 @@ class _GridViewCardState extends State<GridViewCard> {
             SizedBox(height: 9),
             Row(
               children: widget.colorOptions.map(
-                (String stringColor) {
-                  return _colorAvatarBuilder(stringColor);
+                (ColorStringAndHex colorStringAndHex) {
+                  return _colorAvatarBuilder(colorStringAndHex.hex);
                 },
               ).toList(),
             ),

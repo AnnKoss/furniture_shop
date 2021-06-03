@@ -3,6 +3,7 @@
 import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_item_card.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
+import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 
 class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
@@ -36,7 +37,9 @@ class _CartScreenState extends State<CartScreen> {
       floatingActionButton: Container(
         height: 56,
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () {
+            // getCategoryItemsList();
+          },
           backgroundColor: Theme.of(context).primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(

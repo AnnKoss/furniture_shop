@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 class CatalogueFurnitureItem {
   final String title;
@@ -7,7 +8,7 @@ class CatalogueFurnitureItem {
   final String category;
   final String imageUrl;
   final int price;
-  final List<String> colorOptions;
+  final List<ColorStringAndHex> colorOptions;
   final bool isFav;
 
   CatalogueFurnitureItem(
@@ -19,19 +20,45 @@ class CatalogueFurnitureItem {
     this.colorOptions,
     this.isFav,
   );
+
+  factory CatalogueFurnitureItem.fromJson(Map<String, dynamic> json) {
+    return CatalogueFurnitureItem(
+      json['title'] as String,
+      json['id'] as int,
+      json['category'] as String,
+      json['imageUrl'] as String,
+      json['price'] as int,
+      json['colorOptions'] as List<ColorStringAndHex>,
+      json['isFav'] as bool,
+    );
+  }
+        
+
+  Map<String, dynamic> toJson() {
+    
+    return {
+      'title': this.title,
+      'id': this.id,
+      'category': this.category,
+      'imageUrl': this.imageUrl,
+      'price': this.price,
+      // 'colorOptions': {
+      //   for (int i = 0; i < this.colorOptions.length; i++)
+      //     {
+      //       this.colorOptions[i].title: this.colorOptions[i].hex,
+      //     }
+      // },
+      'isFav': this.isFav,
+    };
+  }
 }
 
-class ColorHexAndString {
-  String hex;
+class ColorStringAndHex {
   String title;
+  String hex;
 
-  ColorHexAndString(
-    this.hex,
+  ColorStringAndHex(
     this.title,
+    this.hex,
   );
 }
-
-ColorHexAndString beige = ColorHexAndString(
-  '0xffB2A39D',
-  'Beige',
-);

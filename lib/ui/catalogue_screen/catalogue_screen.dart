@@ -1,6 +1,9 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_furniture_shop/data/server_data.dart';
+import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
+import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
 import '../common/styles.dart';
 import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
@@ -16,27 +19,20 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
   String categoriesDropdownValue = 'Диваны';
 
   @override
+  void initState() {
+    super.initState();
+
+    // createdJson();
+    context.read<FurnitureItemsBloc>().add(
+          FetchFurnitureItemsEvent(categoriesDropdownValue),
+        );
+    // context.read<FurnitureItemsBloc>().add(
+    //       PutFurnitureItemsEvent(catalogueItemsList[0]),
+    //     );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // String string1 = 'abcd';
-    // String string2 = 'dCbaa';
-
-    // bool isAnogram(String one, String two) {
-    //   List<String> oneSplited = one.toLowerCase().split('');
-    //   List<String> twoSplited = two.toLowerCase().split('');
-    //   oneSplited.sort();
-    //   twoSplited.sort();
-    //   String oneFinal = oneSplited.join();
-    //   String twoFinal = twoSplited.join();
-    //   print('oneFinal: $oneFinal');
-    //   print('twoFinal: $twoFinal');
-    //   if (oneFinal == twoFinal)
-    //     return true;
-    //   else
-    //     return false;
-    // }
-
-    // print('isAnogram: ${isAnogram(string1, string2)}');
-
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
@@ -171,24 +167,38 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              GridView.builder(
-                itemCount: catalogueItemsList.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  childAspectRatio: 0.9,
-                ),
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  return GridViewCard(
-                    catalogueItemsList[index].id,
-                    catalogueItemsList[index].title,
-                    catalogueItemsList[index].imageUrl,
-                    catalogueItemsList[index].colorOptions,
-                    catalogueItemsList[index].price,
-                  );
+              BlocBuilder<FurnitureItemsBloc, FurnitureItemsState>(
+                builder: (
+                  context,
+                  state,
+                ) {
+                  if (state is FurnitureItemsLoadingState) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (state is FurnitureItemsLoadedState) {
+                    return GridView.builder(
+                      itemCount: catalogueItemsList.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: 0.9,
+                      ),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (BuildContext context, int index) {
+                        return GridViewCard(
+                          catalogueItemsList[index].id,
+                          catalogueItemsList[index].title,
+                          catalogueItemsList[index].imageUrl,
+                          catalogueItemsList[index].colorOptions,
+                          catalogueItemsList[index].price,
+                        );
+                      },
+                    );
+                  }
                 },
               ),
             ],
