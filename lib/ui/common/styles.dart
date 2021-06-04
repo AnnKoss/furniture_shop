@@ -2,6 +2,8 @@
 
 // const TextStyle headLineTextStyle = const TextStyle(fontSize: 20,);
 
+//ToDo merge identical styles
+
 const TextStyle categoryTitleOnImage = const TextStyle(
   fontSize: 36,
   fontWeight: FontWeight.w600,
@@ -77,5 +79,13 @@ const TextStyle fabText = const TextStyle(
   height: 1.5,
   fontWeight: FontWeight.w400,
   color: Color(0xffffffff),
+  letterSpacing: 0.75,
+);
+
+const TextStyle filtersText = const TextStyle(
+  fontSize: 16,
+  height: 1.5,
+  fontWeight: FontWeight.w400,
+  color: Color(0xff181B32),
   letterSpacing: 0.75,
 );

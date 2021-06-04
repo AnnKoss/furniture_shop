@@ -2,8 +2,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_furniture_shop/data/server_data.dart';
+import 'package:flutter_furniture_shop/domain/category_item.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
-import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
 import '../common/styles.dart';
 import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
@@ -16,19 +16,15 @@ class CatalogueScreen extends StatefulWidget {
 }
 
 class _CatalogueScreenState extends State<CatalogueScreen> {
-  String categoriesDropdownValue = 'Диваны';
+  CategoryItem categoriesDropdownValue = categoriesList[0];
 
   @override
   void initState() {
     super.initState();
 
-    // createdJson();
     context.read<FurnitureItemsBloc>().add(
-          FetchFurnitureItemsEvent(categoriesDropdownValue),
+          FetchAllFurnitureItemsEvent(),
         );
-    // context.read<FurnitureItemsBloc>().add(
-    //       PutFurnitureItemsEvent(catalogueItemsList[0]),
-    //     );
   }
 
   @override
@@ -59,26 +55,40 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
               SizedBox(height: 24),
               Row(
                 children: <Widget>[
-                  // DropdownButton<String>(
-                  //   value: categoriesDropdownValue,
-                  //   items: categoriesList
-                  //       .map((categoryItem) => categoryItem.title)
-                  //       .toList()
-                  //       .map<DropdownMenuItem<String>>(
-                  //     (String value) {
-                  //       return DropdownMenuItem<String>(
-                  //         value: value,
-                  //         child: Text(value),
-                  //       );
-                  //     },
-                  //   ).toList(),
-                  //   onChanged: (value) {
-                  //     setState(() {
-                  //       categoriesDropdownValue = value;
-                  //     });
-                  //     // ToDo: add content changing logic
-                  //   },
-                  // ),
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: categoriesDropdownValue.title,
+                      items: categoriesList
+                          .map(
+                            (categoryItem) => categoryItem.title,
+                          )
+                          .toList()
+                          .map<DropdownMenuItem<String>>(
+                        (String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                            onTap: () {
+                              // context.read<FurnitureItemsBloc>().add(
+                              //       FetchFurnitureCategoryItemsEvent(value),
+                              //     );
+                              // ToDo: fix filter
+                            },
+                          );
+                        },
+                      ).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          categoriesDropdownValue = categoriesList.firstWhere(
+                            (element) => element.title == value,
+                          );
+                        });
+                        // ToDo: add content changing logic
+                      },
+                      style: filtersText,
+                      icon: Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ),
                   // DropdownButton<String>(
                   //   value: categoriesDropdownValue,
                   //   items: filterList.map<DropdownMenuItem<String>>(
@@ -94,9 +104,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                   //       categoriesDropdownValue = value;
                   //     });
                   //   },
-                  //   // ToDo: rewrte filter
                   // ),
-                  Text('''Категории                  Фильтр'''),
+                  // ToDo: rewrte filter
                 ],
               ),
               SizedBox(height: 10),
@@ -113,8 +122,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                       Radius.circular(39),
                     ),
                   ),
-                  child:
-                      Text(categoriesDropdownValue, style: acceptedFilterTitle),
+                  child: Text(categoriesDropdownValue.title,
+                      style: acceptedFilterTitle),
                 ),
               ),
               SizedBox(height: 18),
@@ -151,7 +160,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              categoriesDropdownValue,
+                              categoriesDropdownValue.title,
                               style: categoryTitleOnImage,
                             ),
                             Text(
@@ -172,6 +181,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                   context,
                   state,
                 ) {
+                  //ToDo: implement error state
                   if (state is FurnitureItemsLoadingState) {
                     return Center(
                       child: CircularProgressIndicator(),
@@ -189,13 +199,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (BuildContext context, int index) {
-                        return GridViewCard(
-                          catalogueItemsList[index].id,
-                          catalogueItemsList[index].title,
-                          catalogueItemsList[index].imageUrl,
-                          catalogueItemsList[index].colorOptions,
-                          catalogueItemsList[index].price,
-                        );
+                        return GridViewCard(state.items[index]);
                       },
                     );
                   }
@@ -209,3 +213,9 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
     );
   }
 }
+
+// class CategoriesFilter {
+//   final String title;
+//   final String category;
+//   CategoriesFilter(this.title, this.category,);
+// }

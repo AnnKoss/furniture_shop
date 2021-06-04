@@ -1,4 +1,5 @@
 ﻿class DetailFurnitureItem {
+  ///Single item with information for detailscreen.
   final int id;
   final String description;
   final List<String> reviews;

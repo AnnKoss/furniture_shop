@@ -1,15 +1,9 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 
 class CartItemCard extends StatefulWidget {
-  // final String title;
-  // final int price;
-  // final String imageUrl;
-
-  // CartItemCard(
-  //   this.title,
-  //   this.price,
-  //   this.imageUrl,
-  // );
+  final CatalogueFurnitureItem item;
+  CartItemCard(this.item);
 
   @override
   _CartItemCardState createState() => _CartItemCardState();
@@ -61,14 +55,16 @@ class _CartItemCardState extends State<CartItemCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Диван Бетт'),
-                        Text('Beige'),
+                        Text(widget.item.title),
+                        // Text('Beige'),
+                        //ToDo where is color option chosen in UI?
                       ],
                     ),
                   ],
                 ),
                 SizedBox(height: 52),
-                Text('37999 Руб'),
+                Text('${widget.item.price} Руб'),
+                //ToDo: Should price increase when quantity raises?
                 SizedBox(height: 7),
                 Row(
                   children: [
@@ -85,8 +81,11 @@ class _CartItemCardState extends State<CartItemCard> {
                       height: 32,
                       color: const Color(0xffEFF0F6),
                       child: Center(
-                        child: Icon(
-                          Icons.delete_forever,
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            Icons.delete_forever,
+                          ),
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
@@ -99,7 +98,7 @@ class _CartItemCardState extends State<CartItemCard> {
               width: 155,
               child: FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Image.asset('assets/images/sofa-bett.png'),
+                child: Image.asset(widget.item.imageUrl),
               ),
             ),
           ],

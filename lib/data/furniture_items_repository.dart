@@ -1,74 +1,20 @@
 ﻿import 'dart:convert';
-
-import 'package:http/http.dart' as http;
-// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:http/http.dart' as http;
 
 import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
+import 'package:flutter_furniture_shop/domain/detail_furniture_item.dart';
 import 'package:flutter_furniture_shop/data/server_data.dart';
 
 class ItemsStorage {
   List<CatalogueFurnitureItem> catalogueFurnitureItems = [];
-  // List<CatalogueFurnitureItem> catalogueFurnitureItems = catalogueItemsList;
+  List<DetailFurnitureItem> detailFurnitureItems = [];
 }
 
 class FurnitureItemsRepository {
   final ItemsStorage _storage;
   FurnitureItemsRepository(this._storage);
 
-  // FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  // Future<List<CatalogueFurnitureItem>> putFurnitureItem(
-  //     CatalogueFurnitureItem selectedItem) async {
-  //   final String url =
-  //       'https://test-furniture-shop.firebaseio.com/categories/sofas.json';
-  //   try {
-  //     print('repository try putFurnitureItem');
-  //     http.put(
-  //       url,
-  //       body: json.encode(
-  //         {
-  //           'title': selectedItem.title,
-  //           'price': selectedItem.price,
-  //           'avaliableColors': {
-  //             for (int i = 0; i < selectedItem.colorOptions.length; i++)
-  //               {
-  //                 selectedItem.colorOptions[i].title:
-  //                     selectedItem.colorOptions[i].hex,
-  //               }
-  //           }
-  //         },
-  //       ),
-  //     );
-  //     // firestore.collection('sofas').add(
-  //     //   {
-  //     //     'title': selectedItem.title,
-  //     //     'price': selectedItem.price,
-  //     //     'avaliableColors': {
-  //     //       for (int i = 0; i < selectedItem.colorOptions.length; i++)
-  //     //         {
-  //     //           selectedItem.colorOptions[i].title:
-  //     //               selectedItem.colorOptions[i].hex,
-  //     //         }
-  //     //     }
-  //     //   },
-  //     // );
-  //     CatalogueFurnitureItem addedItem = CatalogueFurnitureItem(
-  //       selectedItem.title,
-  //       selectedItem.id,
-  //       selectedItem.category,
-  //       selectedItem.imageUrl,
-  //       selectedItem.price,
-  //       selectedItem.colorOptions,
-  //       selectedItem.isFav,
-  //     );
-  //     _storage.catalogueFurnitureItems.add(addedItem);
-  //     return _storage.catalogueFurnitureItems;
-  //   } catch (error) {
-  //     rethrow;
-  //   }
-  // }
-
-  List<CatalogueFurnitureItem> parseItems(String responseBody) {
+  List parseItems(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
 
     return parsed
@@ -77,18 +23,18 @@ class FurnitureItemsRepository {
         .toList();
   }
 
-  Future<List<CatalogueFurnitureItem>> fetchCategoryItemsList(
-      String categoryTitle) async {
+  Future<List<CatalogueFurnitureItem>> fetchAllItemsList() async {
     if (_storage.catalogueFurnitureItems.isNotEmpty) {
       return _storage.catalogueFurnitureItems;
     } else {
       _storage.catalogueFurnitureItems = parseItems(
-        createdJson(),
+        createdJson(catalogueItemsList),
       );
-      print('storage items: ${_storage.catalogueFurnitureItems}');
-      return _storage.catalogueFurnitureItems;
+      //createdJson(catalogueItemsList) is a generated json from server_data file. Should be replaced with real server data. 
+      //Sample code for fetching data from FireBase:
+      
       // final String url =
-      //     'https://test-furniture-shop.firebaseio.com/categories/$categoryTitle.json';
+      //     'https://test-furniture-shop.firebaseio.com/categories.json';
       // // final List<CatalogueFurnitureItem> loadedItems = [];
       // // try {
       // final response = await http.get(url);
@@ -102,6 +48,23 @@ class FurnitureItemsRepository {
       // } else {
       //   throw Exception('Failed to load items');
       // }
+
+      print('storage items: ${_storage.catalogueFurnitureItems}');
+      return _storage.catalogueFurnitureItems;
+      
+      
+    }
+  }
+
+  Future<List<DetailFurnitureItem>> fetchDetailFutnitureItems(int id) async {
+    if (_storage.detailFurnitureItems.isNotEmpty) {
+      return _storage.detailFurnitureItems;
+    } else {
+      _storage.detailFurnitureItems = parseItems(
+        createdJson(detailScreenItemsList),
+      );
+      print('storage items: ${_storage.catalogueFurnitureItems}');
+      return _storage.detailFurnitureItems;
     }
   }
 }

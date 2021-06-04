@@ -1,5 +1,8 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter_furniture_shop/ui/product_detail_screen/detail_screen_bloc.dart';
+import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
 import 'package:flutter_furniture_shop/data/server_data.dart';
 import 'package:flutter_furniture_shop/domain/detail_furniture_item.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
@@ -13,13 +16,25 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final arguments =
+        ModalRoute.of(context).settings.arguments as ScreenArguments;
+
+    context.read<DetailScreenItemBloc>().add(
+          FetchDetailScreenItemEvent(arguments.item.id),
+        );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final arguments =
         ModalRoute.of(context).settings.arguments as ScreenArguments;
 
     final DetailFurnitureItem detailFurnitureItem =
         detailScreenItemsList.firstWhere(
-      (element) => element.id == arguments.id,
+      (element) => element.id == arguments.item.id,
     );
     //ToDo: implement error handling
 
@@ -43,7 +58,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
-                  child: Image.asset(arguments.imageUrl),
+                  child: Image.asset(arguments.item.imageUrl),
                 ),
               ),
               SizedBox(height: 16),
@@ -51,11 +66,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    arguments.title,
+                    arguments.item.title,
                     style: productDetailScreenTitle,
                   ),
                   Text(
-                    '${arguments.price.toString()} Руб',
+                    '${arguments.item.price.toString()} Руб',
                     style: productDetailScreenPrice,
                   )
                 ],
@@ -89,7 +104,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       height: 300,
                       padding: EdgeInsets.only(top: 33),
                       child: TabBarView(
-                        // physics: ,
                         children: <Widget>[
                           Container(
                             child: Text(
@@ -132,7 +146,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         height: 56,
         width: 270,
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () {
+            context.read<CartBloc>().add(
+                  AddItemToCartEvent(
+                    arguments.item,
+                  ),
+                );
+          },
+          //ToDo: how to pass to cart screen after pressing the button?
           backgroundColor: Theme.of(context).primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(

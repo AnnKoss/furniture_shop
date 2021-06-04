@@ -1,20 +1,12 @@
 ﻿import 'package:flutter/material.dart';
-
-import 'package:flutter_furniture_shop/ui/common/styles.dart';
 import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 
+import 'package:flutter_furniture_shop/ui/common/styles.dart';
+
 class GridViewCard extends StatefulWidget {
-  final int id;
-  final String title;
-  final String imageUrl;
-  final List<ColorStringAndHex> colorOptions;
-  final int price;
+  final CatalogueFurnitureItem item;
   GridViewCard(
-    this.id,
-    this.title,
-    this.imageUrl,
-    this.colorOptions,
-    this.price,
+    this.item,
   );
   @override
   _GridViewCardState createState() => _GridViewCardState();
@@ -26,12 +18,7 @@ class _GridViewCardState extends State<GridViewCard> {
     return FlatButton(
       onPressed: () => Navigator.of(context).pushNamed(
         '/product-detail',
-        arguments: ScreenArguments(
-          widget.id,
-          widget.title,
-          widget.imageUrl,
-          widget.price,
-        ),
+        arguments: ScreenArguments(widget.item),
       ),
       child: Container(
         padding: EdgeInsets.all(8),
@@ -46,25 +33,26 @@ class _GridViewCardState extends State<GridViewCard> {
           children: [
             Center(
               child: Image.asset(
-                widget.imageUrl,
+                widget.item.imageUrl,
               ),
               //Image.asset is a temporary solution
             ),
             SizedBox(height: 9),
-            Row(
-              children: widget.colorOptions.map(
-                (ColorStringAndHex colorStringAndHex) {
-                  return _colorAvatarBuilder(colorStringAndHex.hex);
-                },
-              ).toList(),
-            ),
+            // Row(
+            //   children: widget.colorOptions.map(
+            //     (ColorStringAndHex colorStringAndHex) {
+            //       return _colorAvatarBuilder(colorStringAndHex.hex);
+            //     },
+            //   ).toList(),
+            // ),
+            //ToDo: correct colorOptions map method
             SizedBox(height: 33),
             Text(
-              widget.title,
+              widget.item.title,
               style: gridviewCardTitle,
             ),
             Text(
-              '${widget.price} Руб',
+              '${widget.item.price} Руб',
               style: gridviewCardPrice,
             ),
           ],
@@ -75,16 +63,10 @@ class _GridViewCardState extends State<GridViewCard> {
 }
 
 class ScreenArguments {
-  final int id;
-  final String title;
-  final String imageUrl;
-  final int price;
+  final CatalogueFurnitureItem item;
 
   ScreenArguments(
-    this.id,
-    this.title,
-    this.imageUrl,
-    this.price,
+    this.item,
   );
 }
 

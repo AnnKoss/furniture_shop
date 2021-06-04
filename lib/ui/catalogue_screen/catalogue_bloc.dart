@@ -5,15 +5,17 @@ import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 
 abstract class FurnitureItemsEvent {}
 
-class FetchFurnitureItemsEvent extends FurnitureItemsEvent {
+class FetchAllFurnitureItemsEvent extends FurnitureItemsEvent {}
+
+class FetchFurnitureCategoryItemsEvent extends FurnitureItemsEvent {
   final String categoryTitle;
-  FetchFurnitureItemsEvent(this.categoryTitle);
+  FetchFurnitureCategoryItemsEvent(this.categoryTitle);
 }
 
-// class PutFurnitureItemsEvent extends FurnitureItemsEvent {
-//   final CatalogueFurnitureItem selectedItem;
-//   PutFurnitureItemsEvent(this.selectedItem);
-// }
+class SelectFilterEvent extends FurnitureItemsEvent {
+  final String filterValue;
+  SelectFilterEvent(this.filterValue);
+}
 
 class FurnitureItemsState {}
 
@@ -37,14 +39,10 @@ class FurnitureItemsBloc
 
   @override
   Stream<FurnitureItemsState> mapEventToState(FurnitureItemsEvent event) {
-    if (event is FetchFurnitureItemsEvent) {
-      return _performFetchItems(event);
-      // } else if (event is PutFurnitureItemsEvent) {
-      //   return _performPutItem(event);
-      // } else if (event is RemoveAppointmentEvent) {
-      //   return _performRemoveAppointment(event);
-      // } else if (event is ChangeVisibleDatesEvent) {
-      //   return _performChangeVisibleDates(event);
+    if (event is FetchFurnitureCategoryItemsEvent) {
+      return _performFetchCategoryItems(event);
+    } else if (event is FetchAllFurnitureItemsEvent) {
+      return _performFetchAllItems(event);
       // } else if (event is SelectFilterEvent) {
       //   return _performSelectFilter(event);
     } else {
@@ -52,14 +50,14 @@ class FurnitureItemsBloc
     }
   }
 
-  Stream<FurnitureItemsState> _performFetchItems(
-      FetchFurnitureItemsEvent event) async* {
+  Stream<FurnitureItemsState> _performFetchAllItems(
+      FetchAllFurnitureItemsEvent event) async* {
     yield FurnitureItemsLoadingState();
 
     List<CatalogueFurnitureItem> loadedItems;
     print('start _performFetchItems');
     try {
-      loadedItems = await _service.fetchCategoryItemsList(event.categoryTitle);
+      loadedItems = await _service.fetchAllItemsList();
       print('loadedItems in _performFetchItems: $loadedItems');
     } on Exception {
       yield FurnitureItemsErrorState(
@@ -70,22 +68,46 @@ class FurnitureItemsBloc
     yield FurnitureItemsLoadedState(loadedItems);
   }
 
-  // Stream<FurnitureItemsState> _performPutItem(
-  //     PutFurnitureItemsEvent event) async* {
+  Stream<FurnitureItemsState> _performFetchCategoryItems(
+      FetchFurnitureCategoryItemsEvent event) async* {
+    yield FurnitureItemsLoadingState();
+
+    List<CatalogueFurnitureItem> categoryItems = [];
+    List<CatalogueFurnitureItem> loadedItems = [];
+    print('start _performFetchItems');
+    try {
+      loadedItems = await _service.fetchAllItemsList();
+      categoryItems = loadedItems
+          .where(
+            (element) => element.category == event.categoryTitle,
+          )
+          .toList();
+      print('loadedItems in _performFetchItems: $loadedItems');
+    } on Exception {
+      yield FurnitureItemsErrorState(
+        'Failed to load items.',
+      );
+    }
+
+    yield FurnitureItemsLoadedState(categoryItems);
+  }
+
+  // Stream<FurnitureItemsState> _performSelectFilter(
+  //     SelectFilterEvent event) async* {
   //   yield FurnitureItemsLoadingState();
 
-  //   // List<CatalogueFurnitureItem> loadedItems;
-  //   print('start _performPutItem');
-  //   List<CatalogueFurnitureItem> updatedList;
+  //   List<CatalogueFurnitureItem> filteredItems;
+  //   print('start _performFetchItems');
   //   try {
-  //     updatedList = await _service.putFurnitureItem(event.selectedItem);
+  //     loadedItems = await _service.fetchCategoryItemsList(event.categoryTitle);
   //     // print('loadedItems in _performFetchItems: $loadedItems');
+  //     loadedItems.
   //   } on Exception {
   //     yield FurnitureItemsErrorState(
   //       'Failed to load items.',
   //     );
   //   }
 
-  //   yield FurnitureItemsLoadedState(updatedList);
+  //   yield FurnitureItemsLoadedState(loadedItems);
   // }
 }

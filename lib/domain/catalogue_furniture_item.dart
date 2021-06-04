@@ -1,7 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-
-class CatalogueFurnitureItem {
+﻿class CatalogueFurnitureItem {
+  ///Single item with basic information.
   final String title;
   final int id;
   //if implemented with FireBase, will be taken from server side
@@ -32,10 +30,14 @@ class CatalogueFurnitureItem {
       json['isFav'] as bool,
     );
   }
-        
+
+  
 
   Map<String, dynamic> toJson() {
-    
+    Map<String, String> coValue = {
+      for (var co in colorOptions) co.title: co.hex
+    };
+    print('coValue: $coValue');
     return {
       'title': this.title,
       'id': this.id,
@@ -43,11 +45,10 @@ class CatalogueFurnitureItem {
       'imageUrl': this.imageUrl,
       'price': this.price,
       // 'colorOptions': {
-      //   for (int i = 0; i < this.colorOptions.length; i++)
-      //     {
-      //       this.colorOptions[i].title: this.colorOptions[i].hex,
-      //     }
+      //   for (var co in colorOptions) co.title: co.hex
       // },
+      // ToDo: correct colorOptions code
+
       'isFav': this.isFav,
     };
   }

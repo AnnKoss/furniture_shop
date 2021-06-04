@@ -1,5 +1,4 @@
 ﻿import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_furniture_shop/domain/category_item.dart';
@@ -13,6 +12,7 @@ List<CategoryItem> categoriesList = [
     Image.asset(
       'assets/images/sofas-category-image.png',
     ),
+    'sofas'
   ),
   CategoryItem(
     'Category Title 1',
@@ -20,6 +20,7 @@ List<CategoryItem> categoriesList = [
     Image.asset(
       'assets/images/sofas-category-image.png',
     ),
+    'category2'
   ),
   CategoryItem(
     'Category Title 2',
@@ -27,12 +28,13 @@ List<CategoryItem> categoriesList = [
     Image.asset(
       'assets/images/sofas-category-image.png',
     ),
+    'category3'
   ),
 ];
 
-String createdJson() {
+String createdJson(List list) {
   String createdJson = jsonEncode(
-    catalogueItemsList
+    list
         .map(
           (i) => i.toJson(),
         )
@@ -40,25 +42,6 @@ String createdJson() {
   ).toString();
   print('json: $createdJson');
   return createdJson;
-  // String createdJson = json.encode(
-  //   catalogueItemsList.map(
-  //     (element) {
-  //       return {
-  //         'title': element.title,
-  //         'id': element.id.toString(),
-  //         'category': element.category,
-  //         'imageUrl': element.imageUrl,
-  //         'price': element.price,
-  //         'cplprOptions': {
-  //           for (int i = 0; i < element.colorOptions.length; i++)
-  //             {
-  //               element.colorOptions[i].title: element.colorOptions[i].hex,
-  //             }
-  //         }
-  //       };
-  //     },
-  //   ),
-  // );
 }
 
 List<CatalogueFurnitureItem> catalogueItemsList = [
@@ -159,9 +142,3 @@ List<DetailFurnitureItem> detailScreenItemsList = [
   ),
 ];
 
-// Map<String, String> avaliableColors = {
-//   'Beige': '0xffB2A39D',
-//   'Yellow': '0xffE4B34C',
-//   'Gray': '0xff9A9E9F',
-//   'Dark Blue': '0xff505C72',
-// };

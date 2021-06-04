@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
+import 'package:flutter_furniture_shop/data/cart_repository.dart';
+import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
+import 'package:flutter_furniture_shop/ui/product_detail_screen/detail_screen_bloc.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_screen.dart';
 import 'package:flutter_furniture_shop/ui/product_detail_screen/product_detail_screen.dart';
@@ -45,18 +48,49 @@ class _MyAppState extends State<MyApp> {
 class FurnitureShopApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Provider<FurnitureItemsRepository>(
-      create: (ctx) => FurnitureItemsRepository(
-        ItemsStorage(),
-      ),
-      child: BlocProvider<FurnitureItemsBloc>(
-        create: (BuildContext context) {
-          FurnitureItemsBloc _bloc = FurnitureItemsBloc(
-            FurnitureItemsLoadingState(),
-            context.read<FurnitureItemsRepository>(),
-          );
-          return _bloc;
-        },
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create: (context) => FurnitureItemsRepository(
+            ItemsStorage(),
+          ),
+        ),
+        RepositoryProvider(
+          create: (context) => CartRepository(
+            CartStorage(),
+          ),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<FurnitureItemsBloc>(
+            create: (BuildContext context) {
+              FurnitureItemsBloc _bloc = FurnitureItemsBloc(
+                FurnitureItemsLoadingState(),
+                context.read<FurnitureItemsRepository>(),
+              );
+              return _bloc;
+            },
+          ),
+          BlocProvider<DetailScreenItemBloc>(
+            create: (BuildContext context) {
+              DetailScreenItemBloc _bloc = DetailScreenItemBloc(
+                DetailScreenItemLoadingState(),
+                context.read<FurnitureItemsRepository>(),
+              );
+              return _bloc;
+            },
+          ),
+          BlocProvider<CartBloc>(
+            create: (BuildContext context) {
+              CartBloc _bloc = CartBloc(
+                CartLoadingState(),
+                context.read<CartRepository>(),
+              );
+              return _bloc;
+            },
+          ),
+        ],
         child: MaterialApp(
           title: 'Furniture Shop',
           theme: ThemeData(
@@ -73,7 +107,7 @@ class FurnitureShopApp extends StatelessWidget {
                 color: Color(0xff181B32),
                 letterSpacing: 0.75,
               ),
-              // ToDo: extract TestStyle-s
+              // ToDo: extract TestStyles
             ),
             appBarTheme: AppBarTheme(
               color: Colors.transparent,
