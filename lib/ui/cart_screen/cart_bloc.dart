@@ -2,6 +2,7 @@
 
 import 'package:flutter_furniture_shop/data/cart_repository.dart';
 import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
+import 'package:flutter_furniture_shop/domain/cart_item.dart';
 
 abstract class CartEvent {}
 
@@ -13,17 +14,17 @@ class AddItemToCartEvent extends CartEvent {
 }
 
 class RemoveItemFromCartEvent extends CartEvent {
-  final List<CatalogueFurnitureItem> removedItems;
-  RemoveItemFromCartEvent(this.removedItems);
+  final CatalogueFurnitureItem removedItem;
+  final bool isAllRemoved;
+  RemoveItemFromCartEvent(
+    this.removedItem,
+    this.isAllRemoved,
+  );
 }
 
-class ChangeQuantityCartEvent extends CartEvent {
-  final bool isMinus;
-  final int quantity;
-  ChangeQuantityCartEvent(
-    this.isMinus,
-    this.quantity,
-  );
+class ChangeIsCheckedEvent extends CartEvent {
+  final int id;
+  ChangeIsCheckedEvent(this.id);
 }
 
 // class CartCheckoutEvent extends CartEvent {}
@@ -34,7 +35,7 @@ class CartState {}
 class CartLoadingState extends CartState {}
 
 class CartLoadedState extends CartState {
-  final List<CatalogueFurnitureItem> items;
+  final List<CartItem> items;
   final int totalSum;
   CartLoadedState(
     this.items,
@@ -59,6 +60,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return _performAddItemToCart(event);
     } else if (event is RemoveItemFromCartEvent) {
       return _performRemoveItemFromCart(event);
+    } else if (event is ChangeIsCheckedEvent) {
+      return _performChangeIsChecked(event);
     } else {
       throw UnimplementedError();
     }
@@ -67,7 +70,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Stream<CartState> _performGetCartItems(GetCartItemsEvent event) async* {
     yield CartLoadingState();
 
-    List<CatalogueFurnitureItem> cartList;
+    List<CartItem> cartList;
     int totalSum;
     try {
       //ToDo: find out what async syntax is needed with no-async repository operations
@@ -77,7 +80,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       yield CartErrorState(
         'Failed to load items.',
       );
-      //ToDo: change errorState messages
     }
 
     yield CartLoadedState(
@@ -89,22 +91,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Stream<CartState> _performAddItemToCart(AddItemToCartEvent event) async* {
     yield CartLoadingState();
 
-    List<CatalogueFurnitureItem> updatedCartList;
+    List<CartItem> updatedCartList = [];
     int totalSum;
     try {
       //ToDo: find out what async syntax is needed with no-async repository operations
       updatedCartList = _service.addItem(event.addedItem);
       totalSum = _service.changeTotalSum(
-        [event.addedItem],
+        event.addedItem.price,
         false,
       );
-
-      print('updatedCartList: $updatedCartList');
     } on Exception {
       yield CartErrorState(
-        'Failed to load items.',
+        'Failed to add item.',
       );
-      //ToDo: change errorState messages
     }
 
     yield CartLoadedState(
@@ -117,19 +116,38 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       RemoveItemFromCartEvent event) async* {
     yield CartLoadingState();
 
-    List<CatalogueFurnitureItem> updatedCartList;
+    List<CartItem> updatedCartList = [];
     int totalSum;
     try {
-      updatedCartList = _service.removeItem(event.removedItems);
+      updatedCartList = _service.removeItem(
+        event.removedItem,
+        event.isAllRemoved,
+      );
       totalSum = _service.changeTotalSum(
-        event.removedItems,
+        event.removedItem.price,
         true,
       );
-
-      print('updatedCartList: $updatedCartList');
     } on Exception {
       yield CartErrorState(
-        'Failed to load items.',
+        'Failed to remove item.',
+      );
+    }
+
+    yield CartLoadedState(updatedCartList, totalSum);
+  }
+
+  Stream<CartState> _performChangeIsChecked(ChangeIsCheckedEvent event) async* {
+    yield CartLoadingState();
+
+    List<CartItem> updatedCartList;
+    int totalSum;
+    try {
+      updatedCartList = _service.changeIsChecked(event.id);
+
+      totalSum = _service.changeTotalSum(0, false);
+    } on Exception {
+      yield CartErrorState(
+        'Something went wrong.',
       );
     }
 

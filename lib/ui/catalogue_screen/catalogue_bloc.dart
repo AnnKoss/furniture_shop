@@ -1,4 +1,5 @@
-﻿import 'package:flutter_bloc/flutter_bloc.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
@@ -12,9 +13,13 @@ class FetchFurnitureCategoryItemsEvent extends FurnitureItemsEvent {
   FetchFurnitureCategoryItemsEvent(this.categoryTitle);
 }
 
-class SelectFilterEvent extends FurnitureItemsEvent {
-  final String filterValue;
-  SelectFilterEvent(this.filterValue);
+class FilterItemsEvent extends FurnitureItemsEvent {
+  final RangeValues priceFilter;
+  final Set<ColorStringAndHex> colorFilter;
+  FilterItemsEvent(
+    this.priceFilter,
+    this.colorFilter,
+  );
 }
 
 class FurnitureItemsState {}
@@ -22,8 +27,12 @@ class FurnitureItemsState {}
 class FurnitureItemsLoadingState extends FurnitureItemsState {}
 
 class FurnitureItemsLoadedState extends FurnitureItemsState {
-  final List<CatalogueFurnitureItem> items;
-  FurnitureItemsLoadedState(this.items);
+  final List<CatalogueFurnitureItem> allItems;
+  final List<CatalogueFurnitureItem> filteredItems;
+  FurnitureItemsLoadedState(
+    this.allItems,
+    this.filteredItems,
+  );
 }
 
 class FurnitureItemsErrorState extends FurnitureItemsState {
@@ -43,8 +52,8 @@ class FurnitureItemsBloc
       return _performFetchCategoryItems(event);
     } else if (event is FetchAllFurnitureItemsEvent) {
       return _performFetchAllItems(event);
-      // } else if (event is SelectFilterEvent) {
-      //   return _performSelectFilter(event);
+    } else if (event is FilterItemsEvent) {
+      return _performFilterItems(event);
     } else {
       throw UnimplementedError();
     }
@@ -54,60 +63,78 @@ class FurnitureItemsBloc
       FetchAllFurnitureItemsEvent event) async* {
     yield FurnitureItemsLoadingState();
 
-    List<CatalogueFurnitureItem> loadedItems;
-    print('start _performFetchItems');
+    List<CatalogueFurnitureItem> _loadedItems;
     try {
-      loadedItems = await _service.fetchAllItemsList();
-      print('loadedItems in _performFetchItems: $loadedItems');
+      _loadedItems = await _service.fetchAllItemsList();
     } on Exception {
       yield FurnitureItemsErrorState(
         'Failed to load items.',
       );
     }
 
-    yield FurnitureItemsLoadedState(loadedItems);
+    yield FurnitureItemsLoadedState(
+      _loadedItems,
+      _loadedItems,
+    );
   }
 
   Stream<FurnitureItemsState> _performFetchCategoryItems(
       FetchFurnitureCategoryItemsEvent event) async* {
     yield FurnitureItemsLoadingState();
 
-    List<CatalogueFurnitureItem> categoryItems = [];
-    List<CatalogueFurnitureItem> loadedItems = [];
-    print('start _performFetchItems');
+    List<CatalogueFurnitureItem> _filteredItems = [];
+    List<CatalogueFurnitureItem> _loadedItems = [];
     try {
-      loadedItems = await _service.fetchAllItemsList();
-      categoryItems = loadedItems
-          .where(
-            (element) => element.category == event.categoryTitle,
-          )
-          .toList();
-      print('loadedItems in _performFetchItems: $loadedItems');
+      _loadedItems = await _service.fetchAllItemsList();
+      if (_loadedItems.isNotEmpty) {
+        _filteredItems = _loadedItems
+            .where(
+              (element) => element.category == event.categoryTitle,
+            )
+            .toList();
+      }
     } on Exception {
       yield FurnitureItemsErrorState(
         'Failed to load items.',
       );
     }
 
-    yield FurnitureItemsLoadedState(categoryItems);
+    yield FurnitureItemsLoadedState(
+      _loadedItems,
+      _filteredItems,
+    );
   }
 
-  // Stream<FurnitureItemsState> _performSelectFilter(
-  //     SelectFilterEvent event) async* {
-  //   yield FurnitureItemsLoadingState();
+  Stream<FurnitureItemsState> _performFilterItems(
+      FilterItemsEvent event) async* {
+    yield FurnitureItemsLoadingState();
 
-  //   List<CatalogueFurnitureItem> filteredItems;
-  //   print('start _performFetchItems');
-  //   try {
-  //     loadedItems = await _service.fetchCategoryItemsList(event.categoryTitle);
-  //     // print('loadedItems in _performFetchItems: $loadedItems');
-  //     loadedItems.
-  //   } on Exception {
-  //     yield FurnitureItemsErrorState(
-  //       'Failed to load items.',
-  //     );
-  //   }
+    List<CatalogueFurnitureItem> _filteredItems = [];
+    List<CatalogueFurnitureItem> _loadedItems = [];
+    try {
+      _loadedItems = await _service.fetchAllItemsList();
 
-  //   yield FurnitureItemsLoadedState(loadedItems);
-  // }
+      _filteredItems = _loadedItems
+          .where(
+            (item) => (
+              (event.priceFilter == null ||
+                    (event.priceFilter.start <= item.price &&
+                        item.price <= event.priceFilter.end)) &&
+                (event.colorFilter == null ||
+                    item.colorOptions
+                        .intersection(event.colorFilter)
+                        .isNotEmpty)),
+          )
+          .toList();
+    } on Exception {
+      yield FurnitureItemsErrorState(
+        'Failed to load items.',
+      );
+    }
+
+    yield FurnitureItemsLoadedState(
+      _loadedItems,
+      _filteredItems,
+    );
+  }
 }

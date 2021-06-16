@@ -12,6 +12,5 @@ class CategoryItem {
     this.text,
     this.image,
     this.category,
-    //ToDo: check whether category is needed
   );
 }

@@ -14,25 +14,18 @@ class FurnitureItemsRepository {
   final ItemsStorage _storage;
   FurnitureItemsRepository(this._storage);
 
-  List parseItems(String responseBody) {
-    final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
-    return parsed
-        .map<CatalogueFurnitureItem>(
-            (json) => CatalogueFurnitureItem.fromJson(json))
-        .toList();
-  }
-
   Future<List<CatalogueFurnitureItem>> fetchAllItemsList() async {
     if (_storage.catalogueFurnitureItems.isNotEmpty) {
       return _storage.catalogueFurnitureItems;
     } else {
-      _storage.catalogueFurnitureItems = parseItems(
-        createdJson(catalogueItemsList),
+      _storage.catalogueFurnitureItems = List<CatalogueFurnitureItem>.from(
+        jsonDecode(jsonEncode(catalogueItemsList)).map(
+          (item) => CatalogueFurnitureItem.fromJson(item),
+        ),
       );
-      //createdJson(catalogueItemsList) is a generated json from server_data file. Should be replaced with real server data. 
+      //jsonEncode(catalogueItemsList) is a generated json from server_data file. Should be replaced with real server data.
       //Sample code for fetching data from FireBase:
-      
+
       // final String url =
       //     'https://test-furniture-shop.firebaseio.com/categories.json';
       // // final List<CatalogueFurnitureItem> loadedItems = [];
@@ -51,8 +44,6 @@ class FurnitureItemsRepository {
 
       print('storage items: ${_storage.catalogueFurnitureItems}');
       return _storage.catalogueFurnitureItems;
-      
-      
     }
   }
 
@@ -60,10 +51,12 @@ class FurnitureItemsRepository {
     if (_storage.detailFurnitureItems.isNotEmpty) {
       return _storage.detailFurnitureItems;
     } else {
-      _storage.detailFurnitureItems = parseItems(
-        createdJson(detailScreenItemsList),
+      _storage.detailFurnitureItems = List<DetailFurnitureItem>.from(
+        jsonDecode(jsonEncode(detailScreenItemsList)).map(
+          (item) => DetailFurnitureItem.fromJson(item),
+        ),
       );
-      print('storage items: ${_storage.catalogueFurnitureItems}');
+      print('_storage.detailFurnitureItems: ${_storage.detailFurnitureItems}');
       return _storage.detailFurnitureItems;
     }
   }

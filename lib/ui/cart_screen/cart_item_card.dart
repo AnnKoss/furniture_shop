@@ -1,17 +1,20 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
+import 'package:provider/provider.dart';
+
+import 'package:flutter_furniture_shop/domain/cart_item.dart';
+import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
 
 class CartItemCard extends StatefulWidget {
-  final CatalogueFurnitureItem item;
-  CartItemCard(this.item);
+  final CartItem cartItem;
+  CartItemCard(
+    this.cartItem,
+  );
 
   @override
   _CartItemCardState createState() => _CartItemCardState();
 }
 
 class _CartItemCardState extends State<CartItemCard> {
-  bool isChecked = false;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -39,13 +42,11 @@ class _CartItemCardState extends State<CartItemCard> {
                       child: Checkbox(
                         checkColor: Colors.white,
                         activeColor: Theme.of(context).primaryColor,
-                        value: isChecked,
+                        value: widget.cartItem.isChecked,
                         onChanged: (bool value) {
-                          setState(
-                            () {
-                              isChecked = value;
-                            },
-                          );
+                          context.read<CartBloc>().add(
+                                ChangeIsCheckedEvent(widget.cartItem.item.id),
+                              );
                         },
                       ),
                     ),
@@ -55,7 +56,7 @@ class _CartItemCardState extends State<CartItemCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.item.title),
+                        Text(widget.cartItem.item.title),
                         // Text('Beige'),
                         //ToDo where is color option chosen in UI?
                       ],
@@ -63,15 +64,35 @@ class _CartItemCardState extends State<CartItemCard> {
                   ],
                 ),
                 SizedBox(height: 52),
-                Text('${widget.item.price} Руб'),
+                Text('${widget.cartItem.item.price} Руб'),
                 //ToDo: Should price increase when quantity raises?
                 SizedBox(height: 7),
                 Row(
                   children: [
-                    _quantityBarTileBuilder(context, '-'),
-                    _quantityBarTileBuilder(context, '1'),
-                    //ToDo: implement logic
-                    _quantityBarTileBuilder(context, '+'),
+                    GestureDetector(
+                      onTap: () {
+                        context.read<CartBloc>().add(
+                              RemoveItemFromCartEvent(
+                                widget.cartItem.item,
+                                false,
+                              ),
+                            );
+                      },
+                      child: _quantityBarTileBuilder(context, '-'),
+                    ),
+                    //ToDo: Should we ask whether to delete card if removing the last item?
+                    _quantityBarTileBuilder(
+                      context,
+                      widget.cartItem.quantity.toString(),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        context.read<CartBloc>().add(
+                              AddItemToCartEvent(widget.cartItem.item),
+                            );
+                      },
+                      child: _quantityBarTileBuilder(context, '+'),
+                    ),
                     Container(),
                     SizedBox(
                       width: 8,
@@ -82,7 +103,14 @@ class _CartItemCardState extends State<CartItemCard> {
                       color: const Color(0xffEFF0F6),
                       child: Center(
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.read<CartBloc>().add(
+                                  RemoveItemFromCartEvent(
+                                    widget.cartItem.item,
+                                    true,
+                                  ),
+                                );
+                          },
                           icon: Icon(
                             Icons.delete_forever,
                           ),
@@ -98,7 +126,11 @@ class _CartItemCardState extends State<CartItemCard> {
               width: 155,
               child: FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Image.asset(widget.item.imageUrl),
+                child: Image.asset(
+                  widget.cartItem.item.imageUrl,
+                  width: 155,
+                  height: 130,
+                ),
               ),
             ),
           ],
@@ -109,8 +141,8 @@ class _CartItemCardState extends State<CartItemCard> {
 }
 
 Widget _quantityBarTileBuilder(
-  BuildContext context,
-  String text,
+  final BuildContext context,
+  final String text,
 ) {
   return Container(
     width: 32,

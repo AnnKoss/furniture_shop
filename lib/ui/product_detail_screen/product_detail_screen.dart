@@ -7,6 +7,7 @@ import 'package:flutter_furniture_shop/data/server_data.dart';
 import 'package:flutter_furniture_shop/domain/detail_furniture_item.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
+import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   static const routeName = '/product-detail';
@@ -32,10 +33,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final arguments =
         ModalRoute.of(context).settings.arguments as ScreenArguments;
 
-    final DetailFurnitureItem detailFurnitureItem =
-        detailScreenItemsList.firstWhere(
-      (element) => element.id == arguments.item.id,
-    );
+    // final DetailFurnitureItem detailFurnitureItem =
+    //     detailScreenItemsList.firstWhere(
+    //   (element) => element.id == arguments.item.id,
+    // );
     //ToDo: implement error handling
 
     return Scaffold(
@@ -100,40 +101,56 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      height: 300,
-                      padding: EdgeInsets.only(top: 33),
-                      child: TabBarView(
-                        children: <Widget>[
-                          Container(
-                            child: Text(
-                              detailFurnitureItem.description,
-                              style: productDetailScreenTabText,
+                    BlocBuilder<DetailScreenItemBloc, DetailScreenItemState>(
+                      builder: (
+                        context,
+                        state,
+                      ) {
+                        //ToDo: implement error state
+                        if (state is DetailScreenItemLoadingState) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (state is DetailScreenItemLoadedState) {
+                          return Container(
+                            height: 300,
+                            padding: EdgeInsets.only(top: 33),
+                            child: TabBarView(
+                              children: <Widget>[
+                                Container(
+                                  child: Text(
+                                    state.item.description,
+                                    style: productDetailScreenTabText,
+                                  ),
+                                ),
+                                Container(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: state.item.reviews.map(
+                                      (element) {
+                                        return Container(
+                                          child: Text(
+                                            element,
+                                            style: productDetailScreenTabText,
+                                          ),
+                                        );
+                                      },
+                                    ).toList(),
+                                  ),
+                                ),
+                                Container(
+                                  child: Text(
+                                    state.item.delivery,
+                                    style: productDetailScreenTabText,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: detailFurnitureItem.reviews.map(
-                                (element) {
-                                  return Container(
-                                    child: Text(
-                                      element,
-                                      style: productDetailScreenTabText,
-                                    ),
-                                  );
-                                },
-                              ).toList(),
-                            ),
-                          ),
-                          Container(
-                            child: Text(
-                              detailFurnitureItem.delivery,
-                              style: productDetailScreenTabText,
-                            ),
-                          ),
-                        ],
-                      ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -152,8 +169,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     arguments.item,
                   ),
                 );
+            Navigator.of(context).pushNamed(CartScreen.routeName);
           },
-          //ToDo: how to pass to cart screen after pressing the button?
+          //ToDo: What should happen on button pressed in the UI? 
           backgroundColor: Theme.of(context).primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(

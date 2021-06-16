@@ -7,42 +7,27 @@ import 'package:flutter_furniture_shop/domain/detail_furniture_item.dart';
 
 List<CategoryItem> categoriesList = [
   CategoryItem(
-    'Диваны',
-    'бесплатная доставка',
-    Image.asset(
-      'assets/images/sofas-category-image.png',
-    ),
-    'sofas'
-  ),
+      'Диваны',
+      'бесплатная доставка',
+      Image.asset(
+        'assets/images/sofas-category-image.png',
+      ),
+      'sofas'),
   CategoryItem(
-    'Category Title 1',
-    'Category text 1',
-    Image.asset(
-      'assets/images/sofas-category-image.png',
-    ),
-    'category2'
-  ),
+      'Category Title 1',
+      'Category text 1',
+      Image.asset(
+        'assets/images/sofas-category-image.png',
+      ),
+      'category2'),
   CategoryItem(
-    'Category Title 2',
-    'Category Text 2',
-    Image.asset(
-      'assets/images/sofas-category-image.png',
-    ),
-    'category3'
-  ),
+      'Category Title 2',
+      'Category Text 2',
+      Image.asset(
+        'assets/images/sofas-category-image.png',
+      ),
+      'category3'),
 ];
-
-String createdJson(List list) {
-  String createdJson = jsonEncode(
-    list
-        .map(
-          (i) => i.toJson(),
-        )
-        .toList(),
-  ).toString();
-  print('json: $createdJson');
-  return createdJson;
-}
 
 List<CatalogueFurnitureItem> catalogueItemsList = [
   CatalogueFurnitureItem(
@@ -51,11 +36,11 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
     'sofas',
     'assets/images/sofa-bett.png',
     37999,
-    [
+    {
       ColorStringAndHex('Beige', '0xffB2A39D'),
       ColorStringAndHex('Yellow', '0xffE4B34C'),
-      ColorStringAndHex('Gray', '0xffB2A39D'),
-    ],
+      ColorStringAndHex('Gray', '0xff9A9E9F'),
+    },
     false,
   ),
   CatalogueFurnitureItem(
@@ -64,11 +49,11 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
     'sofas',
     'assets/images/sofa-sven.png',
     25999,
-    [
+    {
       ColorStringAndHex('Yellow', '0xffE4B34C'),
-      ColorStringAndHex('Gray', '0xffB2A39D'),
+      ColorStringAndHex('Gray', '0xff9A9E9F'),
       ColorStringAndHex('Dark Blue', '0xff505C72'),
-    ],
+    },
     false,
   ),
   CatalogueFurnitureItem(
@@ -77,11 +62,11 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
     'sofas',
     'assets/images/sofa-ron.png',
     19000,
-    [
+    {
       ColorStringAndHex('Beige', '0xffB2A39D'),
-      ColorStringAndHex('Gray', '0xffB2A39D'),
+      ColorStringAndHex('Gray', '0xff9A9E9F'),
       ColorStringAndHex('Dark Blue', '0xff505C72'),
-    ],
+    },
     false,
   ),
   CatalogueFurnitureItem(
@@ -90,11 +75,11 @@ List<CatalogueFurnitureItem> catalogueItemsList = [
     'sofas',
     'assets/images/sofa-elisa.png',
     25999,
-    [
+    {
       ColorStringAndHex('Beige', '0xffB2A39D'),
       ColorStringAndHex('Yellow', '0xffE4B34C'),
-      ColorStringAndHex('Gray', '0xffB2A39D'),
-    ],
+      ColorStringAndHex('Gray', '0xff9A9E9F'),
+    },
     false,
   ),
 ];
@@ -104,9 +89,9 @@ List<DetailFurnitureItem> detailScreenItemsList = [
     1,
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     [
-      '1',
-      '2',
-      '3',
+      'review 1',
+      'review 2',
+      'review 3',
     ],
     'Delivery',
   ),
@@ -114,9 +99,9 @@ List<DetailFurnitureItem> detailScreenItemsList = [
     2,
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     [
-      '1',
-      '2',
-      '3',
+      'review 1',
+      'review 2',
+      'review 3',
     ],
     'Delivery',
   ),
@@ -124,9 +109,9 @@ List<DetailFurnitureItem> detailScreenItemsList = [
     3,
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     [
-      '1',
-      '2',
-      '3',
+      'review 1',
+      'review 2',
+      'review 3',
     ],
     'Delivery',
   ),
@@ -134,11 +119,10 @@ List<DetailFurnitureItem> detailScreenItemsList = [
     4,
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
     [
-      '1',
-      '2',
-      '3',
+      'review 1',
+      'review 2',
+      'review 3',
     ],
     'Delivery',
   ),
 ];
-

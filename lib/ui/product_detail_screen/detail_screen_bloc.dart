@@ -52,7 +52,6 @@ class DetailScreenItemBloc
           return element.id == event.id;
         },
       );
-      print('loadedItem in _performFetchDetailScreenItem: $chosenItem');
     } on Exception {
       yield DetailScreenItemErrorState(
         'Failed to load items.',

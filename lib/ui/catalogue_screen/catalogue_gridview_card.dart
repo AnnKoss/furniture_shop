@@ -15,8 +15,8 @@ class GridViewCard extends StatefulWidget {
 class _GridViewCardState extends State<GridViewCard> {
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
-      onPressed: () => Navigator.of(context).pushNamed(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed(
         '/product-detail',
         arguments: ScreenArguments(widget.item),
       ),
@@ -38,13 +38,13 @@ class _GridViewCardState extends State<GridViewCard> {
               //Image.asset is a temporary solution
             ),
             SizedBox(height: 9),
-            // Row(
-            //   children: widget.colorOptions.map(
-            //     (ColorStringAndHex colorStringAndHex) {
-            //       return _colorAvatarBuilder(colorStringAndHex.hex);
-            //     },
-            //   ).toList(),
-            // ),
+            Row(
+              children: widget.item.colorOptions.map(
+                (ColorStringAndHex colorStringAndHex) {
+                  return _colorAvatarBuilder(colorStringAndHex.hex);
+                },
+              ).toList(),
+            ),
             //ToDo: correct colorOptions map method
             SizedBox(height: 33),
             Text(
