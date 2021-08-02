@@ -5,30 +5,30 @@ import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
 
 class FilterPopup extends StatefulWidget {
-  final List<CatalogueFurnitureItem> itemsList;
-  FilterPopup(this.itemsList);
+  Filter filter;
+  FilterPopup(this.filter);
   @override
   _FilterPopupState createState() => _FilterPopupState();
 }
 
 class _FilterPopupState extends State<FilterPopup> {
-  Set<CheckBoxListTileModel> checkBoxListTileModel = {
-    CheckBoxListTileModel(
+  Set<ColorFilter> checkBoxListTileModel = {
+    ColorFilter(
       'Yellow',
       '0xffE4B34C',
       false,
     ),
-    CheckBoxListTileModel(
+    ColorFilter(
       'Beige',
       '0xffB2A39D',
       false,
     ),
-    CheckBoxListTileModel(
+    ColorFilter(
       'Gray',
       '0xff9A9E9F',
       false,
     ),
-    CheckBoxListTileModel(
+    ColorFilter(
       'Dark Blue',
       '0xff505C72',
       false,
@@ -40,12 +40,16 @@ class _FilterPopupState extends State<FilterPopup> {
   @override
   void initState() {
     super.initState();
-    widget.itemsList.sort((a, b) {
-      return a.price.compareTo(b.price);
-    });
-    _sliderUpperValue =
-        widget.itemsList[widget.itemsList.length - 1].price.toDouble();
-    _currentRangeValues = RangeValues(0, _sliderUpperValue);
+    _sliderUpperValue = widget.filter.maxPrice;
+    if (widget.filter.priceFilter != null) {
+      _currentRangeValues = RangeValues(
+        widget.filter.priceFilter.start,
+        widget.filter.priceFilter.end,
+      );
+    } else {
+      _currentRangeValues = RangeValues(0, _sliderUpperValue);
+    }
+    // if (widget.filter.colorFilter != null) {}
   }
 
   @override
@@ -95,11 +99,10 @@ class _FilterPopupState extends State<FilterPopup> {
                 BuildContext context,
                 int index,
               ) {
-                List<CheckBoxListTileModel> checkBoxList = checkBoxListTileModel.toList();
+                List<ColorFilter> checkBoxList = checkBoxListTileModel.toList();
                 return CheckboxListTile(
                   title: Text(checkBoxList[index].title),
-                  secondary:
-                      _colorAvatarBuilder(checkBoxList[index].color),
+                  secondary: _colorAvatarBuilder(checkBoxList[index].color),
                   value: checkBoxList[index].isChecked,
                   onChanged: (bool value) {
                     setState(() {
@@ -135,24 +138,27 @@ class _FilterPopupState extends State<FilterPopup> {
         ),
         FlatButton(
           onPressed: () {
-            Set<ColorStringAndHex> _selectedColors = checkBoxListTileModel
-                .where((element) => element.isChecked == true)
-                .map(
-              (e) {
-                return ColorStringAndHex(e.title, e.color);
-              },
-            ).toSet();
+            // Set<ColorStringAndHex> _selectedColors = checkBoxListTileModel
+            //     .where((element) => element.isChecked == true)
+            //     .map(
+            //   (e) {
+            //     return ColorStringAndHex(e.title, e.color);
+            //   },
+            // ).toSet();
 
             RangeValues _priceFilter =
                 (_currentRangeValues == RangeValues(0, _sliderUpperValue))
                     ? null
                     : _currentRangeValues;
 
-            Set<ColorStringAndHex> _colorFilter =
-                (_selectedColors.isEmpty) ? null : _selectedColors;
+            Set<ColorFilter> _colorFilter = (checkBoxListTileModel.any(
+              (element) => element.isChecked == true,
+            ))
+                ? checkBoxListTileModel
+                : null;
 
-            context.read<FurnitureItemsBloc>().add(
-                  FilterItemsEvent(
+            context.read<CatalogueItemsBloc>().add(
+                  FilterCatalogueItemsEvent(
                     _priceFilter,
                     _colorFilter,
                   ),
@@ -170,17 +176,6 @@ class _FilterPopupState extends State<FilterPopup> {
       ],
     );
   }
-}
-
-class CheckBoxListTileModel {
-  final String title;
-  final String color;
-  bool isChecked;
-  CheckBoxListTileModel(
-    this.title,
-    this.color,
-    this.isChecked,
-  );
 }
 
 Widget _colorAvatarBuilder(stringColor) {

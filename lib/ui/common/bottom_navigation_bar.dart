@@ -2,6 +2,7 @@
 
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_screen.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
+import 'package:flutter_furniture_shop/ui/favorite_screen/favorite_screen.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
   final int index;
@@ -62,7 +63,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                 Navigator.of(context).pushNamed(CatalogueScreen.routeName);
                 break;
               case 1:
-                Navigator.of(context).pushNamed('/favourite');
+                Navigator.of(context).pushNamed(FavoriteScreen.routeName);
                 break;
               //not existing yet
               case 2:

@@ -100,22 +100,22 @@ class _CartItemCardState extends State<CartItemCard> {
                     Container(
                       width: 32,
                       height: 32,
+                      padding: const EdgeInsets.all(0),
                       color: const Color(0xffEFF0F6),
-                      child: Center(
-                        child: IconButton(
-                          onPressed: () {
-                            context.read<CartBloc>().add(
-                                  RemoveItemFromCartEvent(
-                                    widget.cartItem.item,
-                                    true,
-                                  ),
-                                );
-                          },
-                          icon: Icon(
-                            Icons.delete_forever,
-                          ),
-                          color: Theme.of(context).primaryColor,
+                      child: IconButton(
+                        onPressed: () {
+                          context.read<CartBloc>().add(
+                                RemoveItemFromCartEvent(
+                                  widget.cartItem.item,
+                                  true,
+                                ),
+                              );
+                        },
+                        icon: Icon(
+                          Icons.delete_forever,
+                          size: 18,
                         ),
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ],

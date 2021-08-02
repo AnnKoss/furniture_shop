@@ -4,8 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_furniture_shop/data/server_data.dart';
 import 'package:flutter_furniture_shop/domain/category_item.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
-import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
+import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_item_card.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_screen_filters_popup.dart';
+import 'package:flutter_furniture_shop/ui/common/default_alert_dialog.dart';
 import '../common/styles.dart';
 import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
 
@@ -23,8 +24,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
   void initState() {
     super.initState();
 
-    context.read<FurnitureItemsBloc>().add(
-          FetchAllFurnitureItemsEvent(),
+    context.read<CatalogueItemsBloc>().add(
+          FetchAllCatalogueItemsEvent(),
         );
   }
 
@@ -45,18 +46,20 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: BlocBuilder<FurnitureItemsBloc, FurnitureItemsState>(
+          child: BlocBuilder<CatalogueItemsBloc, CatalogueItemsState>(
             builder: (
               context,
               state,
             ) {
-              //ToDo: implement error state
-              if (state is FurnitureItemsLoadingState) {
+              if (state is CatalogueItemsErrorState) {
+                return DefaultAlertDialog(state.errorMessage);
+              }
+              if (state is CatalogueItemsLoadingState) {
                 return Center(
                   child: CircularProgressIndicator(),
                 );
               }
-              if (state is FurnitureItemsLoadedState) {
+              if (state is CatalogueItemsLoadedState) {
                 return Column(
                   children: [
                     Center(
@@ -85,8 +88,8 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                                   value: value.title,
                                   child: Text(value.title),
                                   onTap: () {
-                                    context.read<FurnitureItemsBloc>().add(
-                                          FetchFurnitureCategoryItemsEvent(
+                                    context.read<CatalogueItemsBloc>().add(
+                                          FetchCatalogueCategoryItemsEvent(
                                               value.category),
                                         );
                                   },
@@ -113,7 +116,7 @@ class _CatalogueScreenState extends State<CatalogueScreen> {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return FilterPopup(state.allItems);
+                                return FilterPopup(state.filter);
                               },
                             );
                           },

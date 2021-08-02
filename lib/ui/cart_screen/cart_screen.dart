@@ -1,10 +1,12 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter_furniture_shop/domain/cart_item.dart';
 import 'package:flutter_furniture_shop/ui/common/bottom_navigation_bar.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_item_card.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
+import 'package:flutter_furniture_shop/ui/common/default_alert_dialog.dart';
 
 class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
@@ -22,6 +24,8 @@ class _CartScreenState extends State<CartScreen> {
         );
   }
 
+  bool isCartEmpty;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +38,9 @@ class _CartScreenState extends State<CartScreen> {
             context,
             state,
           ) {
+            if (state is CartErrorState) {
+              return DefaultAlertDialog(state.errorMessage);
+            }
             if (state is CartLoadingState) {
               return Center(
                 child: CircularProgressIndicator(),
@@ -58,12 +65,10 @@ class _CartScreenState extends State<CartScreen> {
                               FlatButton.icon(
                                 padding: EdgeInsets.zero,
                                 onPressed: () {
-                                  for (var i = 0;
-                                      i < state.items.length;
-                                      i++) {
+                                  for (CartItem cartitem in state.items) {
                                     context.read<CartBloc>().add(
                                           ChangeIsCheckedEvent(
-                                              state.items[i].item.id),
+                                              cartitem.item.id),
                                         );
                                   }
                                 },
@@ -136,7 +141,6 @@ class _CartScreenState extends State<CartScreen> {
                               color: Colors.black54,
                             ),
                           ),
-                          //ToDo: Dummy text, should be replaced
                         ],
                       ),
               );
@@ -144,23 +148,34 @@ class _CartScreenState extends State<CartScreen> {
           },
         ),
       ),
-      floatingActionButton: Container(
-        height: 56,
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            //ToDo: implement bloc.add(CartCheckoutEvent). If Cart.isEmpty should be disabled
-          },
-          backgroundColor: Theme.of(context).primaryColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
-          ),
-          label: Text(
-            'Перейти к оформлению заказа',
-            style: fabText,
-          ),
-        ),
+      floatingActionButton: BlocBuilder<CartBloc, CartState>(
+        builder: (
+          context,
+          state,
+        ) {
+          if (state is CartLoadedState) {
+            return state.items.isNotEmpty
+                ? Container(
+                    height: 56,
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        //ToDo: implement bloc.add(CartCheckoutEvent). If Cart.isEmpty should be disabled
+                      },
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                      label: Text(
+                        'Перейти к оформлению заказа',
+                        style: fabText,
+                      ),
+                    ),
+                  )
+                : SizedBox(height: 0);
+          }
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: CustomBottomNavigationBar(2),

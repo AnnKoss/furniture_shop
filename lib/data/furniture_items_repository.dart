@@ -60,4 +60,10 @@ class FurnitureItemsRepository {
       return _storage.detailFurnitureItems;
     }
   }
+
+  Future<List<CatalogueFurnitureItem>> toggleIsFavourite(int id) async {
+    CatalogueFurnitureItem item = _storage.catalogueFurnitureItems.firstWhere((element) => element.id == id);
+    item.isFav = !item.isFav;
+    return _storage.catalogueFurnitureItems;
+  }
 }

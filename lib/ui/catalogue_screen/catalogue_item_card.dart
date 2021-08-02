@@ -1,6 +1,9 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
+import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
+import 'package:flutter_furniture_shop/ui/common/fav_mark.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
 
 class GridViewCard extends StatefulWidget {
@@ -45,15 +48,36 @@ class _GridViewCardState extends State<GridViewCard> {
                 },
               ).toList(),
             ),
-            //ToDo: correct colorOptions map method
             SizedBox(height: 33),
-            Text(
-              widget.item.title,
-              style: gridviewCardTitle,
-            ),
-            Text(
-              '${widget.item.price} Руб',
-              style: gridviewCardPrice,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.item.title,
+                      style: gridviewCardTitle,
+                    ),
+                    Text(
+                      '${widget.item.price} Руб',
+                      style: gridviewCardPrice,
+                    ),
+                  ],
+                ),
+                FavoriteMark(
+                  24,
+                  24,
+                  0,
+                  20,
+                  widget.item.isFav,
+                  () {
+                    context.read<CatalogueItemsBloc>().add(
+                          ToggleIsFavouriteEvent(widget.item.id),
+                        );
+                  },
+                ),
+              ],
             ),
           ],
         ),

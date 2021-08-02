@@ -7,7 +7,7 @@
   final String imageUrl;
   final int price;
   final Set<ColorStringAndHex> colorOptions;
-  final bool isFav;
+  bool isFav;
 
   CatalogueFurnitureItem(
     this.title,

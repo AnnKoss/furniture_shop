@@ -3,14 +3,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter_furniture_shop/ui/common/default_alert_dialog.dart';
+import 'package:flutter_furniture_shop/ui/favorite_screen/favorite_screen.dart';
 import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 import 'package:flutter_furniture_shop/data/cart_repository.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
-import 'package:flutter_furniture_shop/ui/product_detail_screen/detail_screen_bloc.dart';
+import 'package:flutter_furniture_shop/ui/product_detail_screen/product_detail_bloc.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
 import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_screen.dart';
 import 'package:flutter_furniture_shop/ui/product_detail_screen/product_detail_screen.dart';
+import 'package:flutter_furniture_shop/ui/favorite_screen/favorite_screen_bloc.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,8 +33,9 @@ class _MyAppState extends State<MyApp> {
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          // return SomethingWentWrong();
-          // ToDo: add error handling
+          return DefaultAlertDialog(
+            snapshot.error.toString(),
+          );
         }
         if (snapshot.connectionState == ConnectionState.done) {
           return FurnitureShopApp();
@@ -63,10 +67,19 @@ class FurnitureShopApp extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<FurnitureItemsBloc>(
+          BlocProvider<CatalogueItemsBloc>(
             create: (BuildContext context) {
-              FurnitureItemsBloc _bloc = FurnitureItemsBloc(
-                FurnitureItemsLoadingState(),
+              CatalogueItemsBloc _bloc = CatalogueItemsBloc(
+                CatalogueItemsLoadingState(),
+                context.read<FurnitureItemsRepository>(),
+              );
+              return _bloc;
+            },
+          ),
+          BlocProvider<FavoriteScreenBloc>(
+            create: (BuildContext context) {
+              FavoriteScreenBloc _bloc = FavoriteScreenBloc(
+                FavoriteScreenLoadingState(),
                 context.read<FurnitureItemsRepository>(),
               );
               return _bloc;
@@ -121,6 +134,7 @@ class FurnitureShopApp extends StatelessWidget {
           home: CatalogueScreen(),
           routes: {
             CatalogueScreen.routeName: (ctx) => CatalogueScreen(),
+            FavoriteScreen.routeName: (ctx) => FavoriteScreen(),
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),
           },

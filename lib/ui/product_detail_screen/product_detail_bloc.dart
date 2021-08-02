@@ -7,7 +7,16 @@ abstract class DetailScreenItemEvent {}
 
 class FetchDetailScreenItemEvent extends DetailScreenItemEvent {
   final int id;
-  FetchDetailScreenItemEvent(this.id);
+  bool isFav;
+  FetchDetailScreenItemEvent(
+    this.id,
+    this.isFav,
+  );
+}
+
+class ToggleIsDetailFavouriteEvent extends DetailScreenItemEvent {
+  final int id;
+  ToggleIsDetailFavouriteEvent(this.id);
 }
 
 class DetailScreenItemState {}
@@ -16,7 +25,11 @@ class DetailScreenItemLoadingState extends DetailScreenItemState {}
 
 class DetailScreenItemLoadedState extends DetailScreenItemState {
   final DetailFurnitureItem item;
-  DetailScreenItemLoadedState(this.item);
+  bool isFav;
+  DetailScreenItemLoadedState(
+    this.item,
+    this.isFav,
+  );
 }
 
 class DetailScreenItemErrorState extends DetailScreenItemState {
@@ -34,30 +47,60 @@ class DetailScreenItemBloc
   Stream<DetailScreenItemState> mapEventToState(DetailScreenItemEvent event) {
     if (event is FetchDetailScreenItemEvent) {
       return _performFetchDetailScreenItem(event);
+    } else if (event is ToggleIsDetailFavouriteEvent) {
+      return _performToggleIsFavouriteItem(event);
     } else {
       throw UnimplementedError();
     }
   }
 
+  DetailFurnitureItem chosenItem;
+  bool isFav;
+
   Stream<DetailScreenItemState> _performFetchDetailScreenItem(
       FetchDetailScreenItemEvent event) async* {
     yield DetailScreenItemLoadingState();
 
-    DetailFurnitureItem chosenItem;
     try {
       List<DetailFurnitureItem> fetchedItems =
           await _service.fetchDetailFutnitureItems(event.id);
+
       chosenItem = fetchedItems.firstWhere(
         (element) {
           return element.id == event.id;
         },
       );
+
+      isFav = event.isFav;
+    } on Exception {
+      yield DetailScreenItemErrorState(
+        'Failed to load item.',
+      );
+    }
+
+    yield DetailScreenItemLoadedState(
+      chosenItem,
+      isFav,
+    );
+  }
+
+  Stream<DetailScreenItemState> _performToggleIsFavouriteItem(
+      ToggleIsDetailFavouriteEvent event) async* {
+    yield DetailScreenItemLoadingState();
+
+    try {
+      await _service.toggleIsFavourite(event.id);
+
+      isFav = !isFav;
     } on Exception {
       yield DetailScreenItemErrorState(
         'Failed to load items.',
       );
     }
 
-    yield DetailScreenItemLoadedState(chosenItem);
+    yield DetailScreenItemLoadedState(
+      chosenItem,
+      isFav,
+    );
   }
 }

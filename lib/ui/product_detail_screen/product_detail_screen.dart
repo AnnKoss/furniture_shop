@@ -1,12 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_furniture_shop/ui/common/default_alert_dialog.dart';
+import 'package:flutter_furniture_shop/ui/common/fav_mark.dart';
 
-import 'package:flutter_furniture_shop/ui/product_detail_screen/detail_screen_bloc.dart';
+import 'package:flutter_furniture_shop/ui/product_detail_screen/product_detail_bloc.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_bloc.dart';
-import 'package:flutter_furniture_shop/data/server_data.dart';
-import 'package:flutter_furniture_shop/domain/detail_furniture_item.dart';
+import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_bloc.dart';
 import 'package:flutter_furniture_shop/ui/common/styles.dart';
-import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_gridview_card.dart';
+import 'package:flutter_furniture_shop/ui/catalogue_screen/catalogue_item_card.dart';
 import 'package:flutter_furniture_shop/ui/cart_screen/cart_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -24,7 +25,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ModalRoute.of(context).settings.arguments as ScreenArguments;
 
     context.read<DetailScreenItemBloc>().add(
-          FetchDetailScreenItemEvent(arguments.item.id),
+          FetchDetailScreenItemEvent(
+            arguments.item.id,
+            arguments.item.isFav,
+          ),
         );
   }
 
@@ -33,12 +37,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final arguments =
         ModalRoute.of(context).settings.arguments as ScreenArguments;
 
-    // final DetailFurnitureItem detailFurnitureItem =
-    //     detailScreenItemsList.firstWhere(
-    //   (element) => element.id == arguments.item.id,
-    // );
-    //ToDo: implement error handling
-
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(),
@@ -46,116 +44,137 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 325,
-                // ToDo: if counted dinamically, correct height
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xffEFF0F6),
-                  ),
-                ),
-                child: FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Image.asset(arguments.item.imageUrl),
-                ),
-              ),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    arguments.item.title,
-                    style: productDetailScreenTitle,
-                  ),
-                  Text(
-                    '${arguments.item.price.toString()} Руб',
-                    style: productDetailScreenPrice,
-                  )
-                ],
-              ),
-              SizedBox(height: 36),
-              DefaultTabController(
-                length: 3,
-                initialIndex: 0,
-                child: Column(
+          child: BlocBuilder<DetailScreenItemBloc, DetailScreenItemState>(
+            builder: (
+              context,
+              state,
+            ) {
+              if (state is DetailScreenItemErrorState) {
+                return DefaultAlertDialog(state.errorMessage);
+              }
+              if (state is DetailScreenItemLoadingState) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (state is DetailScreenItemLoadedState) {
+                return Column(
                   children: [
                     Container(
-                      child: TabBar(
-                        indicatorColor: Theme.of(context).primaryColor,
-                        labelColor: Theme.of(context).primaryColor,
-                        unselectedLabelColor: const Color(0xffA0A3BD),
-                        labelStyle: productDetailScreenTabLabel,
-                        tabs: [
-                          Tab(
-                            text: 'Описание',
+                      width: double.infinity,
+                      height: 325,
+                      // ToDo: if counted dinamically, correct height
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xffEFF0F6),
+                        ),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: FavoriteMark(
+                              32,
+                              32,
+                              8,
+                              26,
+                              state.isFav,
+                              () {
+                                context.read<DetailScreenItemBloc>().add(
+                                      ToggleIsDetailFavouriteEvent(
+                                          arguments.item.id),
+                                    );
+                              },
+                            ),
                           ),
-                          Tab(
-                            text: 'Отзывы',
-                          ),
-                          Tab(
-                            text: 'Доставка',
+                          FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Image.asset(arguments.item.imageUrl),
                           ),
                         ],
                       ),
                     ),
-                    BlocBuilder<DetailScreenItemBloc, DetailScreenItemState>(
-                      builder: (
-                        context,
-                        state,
-                      ) {
-                        //ToDo: implement error state
-                        if (state is DetailScreenItemLoadingState) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (state is DetailScreenItemLoadedState) {
-                          return Container(
-                            height: 300,
-                            padding: EdgeInsets.only(top: 33),
-                            child: TabBarView(
-                              children: <Widget>[
-                                Container(
-                                  child: Text(
-                                    state.item.description,
-                                    style: productDetailScreenTabText,
-                                  ),
+                    SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          arguments.item.title,
+                          style: productDetailScreenTitle,
+                        ),
+                        Text(
+                          '${arguments.item.price.toString()} Руб',
+                          style: productDetailScreenPrice,
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 36),
+                    DefaultTabController(
+                      length: 3,
+                      initialIndex: 0,
+                      child: Column(children: [
+                        Container(
+                          child: TabBar(
+                            indicatorColor: Theme.of(context).primaryColor,
+                            labelColor: Theme.of(context).primaryColor,
+                            unselectedLabelColor: const Color(0xffA0A3BD),
+                            labelStyle: productDetailScreenTabLabel,
+                            tabs: [
+                              Tab(
+                                text: 'Описание',
+                              ),
+                              Tab(
+                                text: 'Отзывы',
+                              ),
+                              Tab(
+                                text: 'Доставка',
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 300,
+                          padding: EdgeInsets.only(top: 33),
+                          child: TabBarView(
+                            children: <Widget>[
+                              Container(
+                                child: Text(
+                                  state.item.description,
+                                  style: productDetailScreenTabText,
                                 ),
-                                Container(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: state.item.reviews.map(
-                                      (element) {
-                                        return Container(
-                                          child: Text(
-                                            element,
-                                            style: productDetailScreenTabText,
-                                          ),
-                                        );
-                                      },
-                                    ).toList(),
-                                  ),
+                              ),
+                              Container(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: state.item.reviews.map(
+                                    (element) {
+                                      return Container(
+                                        child: Text(
+                                          element,
+                                          style: productDetailScreenTabText,
+                                        ),
+                                      );
+                                    },
+                                  ).toList(),
                                 ),
-                                Container(
-                                  child: Text(
-                                    state.item.delivery,
-                                    style: productDetailScreenTabText,
-                                  ),
+                              ),
+                              Container(
+                                child: Text(
+                                  state.item.delivery,
+                                  style: productDetailScreenTabText,
                                 ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
                     ),
                   ],
-                ),
-              ),
-            ],
+                );
+              }
+            },
           ),
         ),
       ),
@@ -171,7 +190,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 );
             Navigator.of(context).pushNamed(CartScreen.routeName);
           },
-          //ToDo: What should happen on button pressed in the UI? 
+          //ToDo: What should happen on button pressed in the UI?
           backgroundColor: Theme.of(context).primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(

@@ -4,88 +4,112 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_furniture_shop/data/furniture_items_repository.dart';
 import 'package:flutter_furniture_shop/domain/catalogue_furniture_item.dart';
 
-abstract class FurnitureItemsEvent {}
+abstract class CatalogueItemsEvent {}
 
-class FetchAllFurnitureItemsEvent extends FurnitureItemsEvent {}
+class FetchAllCatalogueItemsEvent extends CatalogueItemsEvent {}
 
-class FetchFurnitureCategoryItemsEvent extends FurnitureItemsEvent {
+class FetchCatalogueCategoryItemsEvent extends CatalogueItemsEvent {
   final String categoryTitle;
-  FetchFurnitureCategoryItemsEvent(this.categoryTitle);
+  FetchCatalogueCategoryItemsEvent(this.categoryTitle);
 }
 
-class FilterItemsEvent extends FurnitureItemsEvent {
+class FilterCatalogueItemsEvent extends CatalogueItemsEvent {
   final RangeValues priceFilter;
-  final Set<ColorStringAndHex> colorFilter;
-  FilterItemsEvent(
+  final Set<ColorFilter> colorFilter;
+  FilterCatalogueItemsEvent(
     this.priceFilter,
     this.colorFilter,
   );
 }
 
-class FurnitureItemsState {}
+class ToggleIsFavouriteEvent extends CatalogueItemsEvent {
+  final int id;
+  ToggleIsFavouriteEvent(this.id);
+}
 
-class FurnitureItemsLoadingState extends FurnitureItemsState {}
+class CatalogueItemsState {}
 
-class FurnitureItemsLoadedState extends FurnitureItemsState {
-  final List<CatalogueFurnitureItem> allItems;
+class CatalogueItemsLoadingState extends CatalogueItemsState {}
+
+class CatalogueItemsLoadedState extends CatalogueItemsState {
   final List<CatalogueFurnitureItem> filteredItems;
-  FurnitureItemsLoadedState(
-    this.allItems,
+  final Filter filter;
+  CatalogueItemsLoadedState(
     this.filteredItems,
+    this.filter,
   );
 }
 
-class FurnitureItemsErrorState extends FurnitureItemsState {
+class CatalogueItemsErrorState extends CatalogueItemsState {
   final String errorMessage;
-  FurnitureItemsErrorState(this.errorMessage);
+  CatalogueItemsErrorState(this.errorMessage);
 }
 
-class FurnitureItemsBloc
-    extends Bloc<FurnitureItemsEvent, FurnitureItemsState> {
+class CatalogueItemsBloc
+    extends Bloc<CatalogueItemsEvent, CatalogueItemsState> {
   final FurnitureItemsRepository _service;
-  FurnitureItemsBloc(FurnitureItemsState initialState, this._service)
+  CatalogueItemsBloc(CatalogueItemsState initialState, this._service)
       : super(initialState);
 
   @override
-  Stream<FurnitureItemsState> mapEventToState(FurnitureItemsEvent event) {
-    if (event is FetchFurnitureCategoryItemsEvent) {
+  Stream<CatalogueItemsState> mapEventToState(CatalogueItemsEvent event) {
+    if (event is FetchCatalogueCategoryItemsEvent) {
       return _performFetchCategoryItems(event);
-    } else if (event is FetchAllFurnitureItemsEvent) {
+    } else if (event is FetchAllCatalogueItemsEvent) {
       return _performFetchAllItems(event);
-    } else if (event is FilterItemsEvent) {
+    } else if (event is FilterCatalogueItemsEvent) {
       return _performFilterItems(event);
+    } else if (event is ToggleIsFavouriteEvent) {
+      return _performToggleIsFavouriteItem(event);
     } else {
       throw UnimplementedError();
     }
   }
 
-  Stream<FurnitureItemsState> _performFetchAllItems(
-      FetchAllFurnitureItemsEvent event) async* {
-    yield FurnitureItemsLoadingState();
+  
+  List<CatalogueFurnitureItem> _loadedItems = [];
+  List<CatalogueFurnitureItem> _filteredItems = [];
 
-    List<CatalogueFurnitureItem> _loadedItems;
+  double _maxPrice;
+  RangeValues _priceFilter = null;
+  Set<ColorFilter> _colorFilter = null;
+
+
+  Stream<CatalogueItemsState> _performFetchAllItems(
+      FetchAllCatalogueItemsEvent event) async* {
+    yield CatalogueItemsLoadingState();
+
     try {
       _loadedItems = await _service.fetchAllItemsList();
+
+      _loadedItems.sort(
+        (a, b) {
+          return a.price.compareTo(b.price);
+        },
+      );
+      _maxPrice = _loadedItems[_loadedItems.length - 1].price.toDouble();
+      print('maxPrice: $_maxPrice');
     } on Exception {
-      yield FurnitureItemsErrorState(
+      yield CatalogueItemsErrorState(
         'Failed to load items.',
       );
     }
 
-    yield FurnitureItemsLoadedState(
+    yield CatalogueItemsLoadedState(
       _loadedItems,
-      _loadedItems,
+      Filter(
+        null,
+        null,
+        _maxPrice,
+      ),
     );
   }
 
-  Stream<FurnitureItemsState> _performFetchCategoryItems(
-      FetchFurnitureCategoryItemsEvent event) async* {
-    yield FurnitureItemsLoadingState();
+  Stream<CatalogueItemsState> _performFetchCategoryItems(
+      FetchCatalogueCategoryItemsEvent event) async* {
+    yield CatalogueItemsLoadingState();
 
-    List<CatalogueFurnitureItem> _filteredItems = [];
-    List<CatalogueFurnitureItem> _loadedItems = [];
     try {
-      _loadedItems = await _service.fetchAllItemsList();
       if (_loadedItems.isNotEmpty) {
         _filteredItems = _loadedItems
             .where(
@@ -94,47 +118,118 @@ class FurnitureItemsBloc
             .toList();
       }
     } on Exception {
-      yield FurnitureItemsErrorState(
+      yield CatalogueItemsErrorState(
         'Failed to load items.',
       );
     }
 
-    yield FurnitureItemsLoadedState(
-      _loadedItems,
+    yield CatalogueItemsLoadedState(
       _filteredItems,
+      Filter(
+        null,
+        null,
+        _maxPrice,
+      ),
     );
   }
 
-  Stream<FurnitureItemsState> _performFilterItems(
-      FilterItemsEvent event) async* {
-    yield FurnitureItemsLoadingState();
+  Stream<CatalogueItemsState> _performFilterItems(
+      FilterCatalogueItemsEvent event) async* {
+    yield CatalogueItemsLoadingState();
 
-    List<CatalogueFurnitureItem> _filteredItems = [];
-    List<CatalogueFurnitureItem> _loadedItems = [];
+    Set<ColorStringAndHex> _selectedColors;
     try {
-      _loadedItems = await _service.fetchAllItemsList();
+      _priceFilter = event.priceFilter;
+      _colorFilter = event.colorFilter;
+
+      _selectedColors = (_colorFilter != null)
+          ? _colorFilter.where((element) => element.isChecked == true).map(
+              (e) {
+                return ColorStringAndHex(e.title, e.color);
+              },
+            ).toSet()
+          : null;
 
       _filteredItems = _loadedItems
           .where(
-            (item) => (
-              (event.priceFilter == null ||
-                    (event.priceFilter.start <= item.price &&
-                        item.price <= event.priceFilter.end)) &&
-                (event.colorFilter == null ||
+            (item) => ((_priceFilter == null ||
+                    (_priceFilter.start <= item.price &&
+                        item.price <= _priceFilter.end)) &&
+                (_colorFilter == null ||
                     item.colorOptions
-                        .intersection(event.colorFilter)
+                        .intersection(_colorFilter)
                         .isNotEmpty)),
           )
           .toList();
     } on Exception {
-      yield FurnitureItemsErrorState(
+      yield CatalogueItemsErrorState(
         'Failed to load items.',
       );
     }
 
-    yield FurnitureItemsLoadedState(
-      _loadedItems,
+    yield CatalogueItemsLoadedState(
       _filteredItems,
+      Filter(
+        event.priceFilter,
+        _selectedColors,
+        _maxPrice,
+      ),
     );
   }
+
+  Stream<CatalogueItemsState> _performToggleIsFavouriteItem(
+      ToggleIsFavouriteEvent event) async* {
+    yield CatalogueItemsLoadingState();
+
+    Set<ColorStringAndHex> _selectedColors;
+    try {
+      _loadedItems = await _service.toggleIsFavourite(event.id);
+      _selectedColors = (_colorFilter != null)
+          ? _colorFilter.where((element) => element.isChecked == true).map(
+              (e) {
+                return ColorStringAndHex(e.title, e.color);
+              },
+            ).toSet()
+          : null;
+      //ToDo: avoid code duplication
+      if (_filteredItems.isEmpty) {
+        _filteredItems = _loadedItems;
+      }
+    } on Exception {
+      yield CatalogueItemsErrorState(
+        'Failed to load items.',
+      );
+    }
+
+    yield CatalogueItemsLoadedState(
+      _filteredItems,
+      Filter(
+        _priceFilter,
+        _selectedColors,
+        _maxPrice,
+      ),
+    );
+  }
+}
+
+class Filter {
+  final RangeValues priceFilter;
+  final Set<ColorStringAndHex> colorFilter;
+  final double maxPrice;
+  Filter(
+    this.priceFilter,
+    this.colorFilter,
+    this.maxPrice,
+  );
+}
+
+class ColorFilter {
+  final String title;
+  final String color;
+  bool isChecked;
+  ColorFilter(
+    this.title,
+    this.color,
+    this.isChecked,
+  );
 }

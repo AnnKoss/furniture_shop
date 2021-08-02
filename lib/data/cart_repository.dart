@@ -53,7 +53,7 @@ class CartRepository {
     if ((_storage.cartItems
                 .firstWhere((element) => element.item.id == removedItem.id)
                 .quantity ==
-            1) &&
+            1) ||
         (isAllRemoved = true)) {
       _storage.cartItems.removeWhere(
         (element) => element.item.id == removedItem.id,
